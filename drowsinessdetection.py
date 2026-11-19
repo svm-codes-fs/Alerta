@@ -8,6 +8,7 @@ import time
 
 mixer.init()
 sound = mixer.Sound('alarm.wav')
+sound.set_volume(0.3)   # 0.0 (mute) .. 1.0 (full)
 
 face = cv2.CascadeClassifier('haar cascade files\haarcascade_frontalface_alt.xml')
 leye = cv2.CascadeClassifier('haar cascade files\haarcascade_lefteye_2splits.xml')
@@ -17,7 +18,21 @@ reye = cv2.CascadeClassifier('haar cascade files\haarcascade_righteye_2splits.xm
 
 lbl=['Close','Open']
 
-model = load_model('models/cnncat2.h5')
+try:
+    model = load_model('models/cnncat2.h5')
+except TypeError:
+    # cnnCat2.h5 was saved by Keras 2.1.6 and its config does not load in Keras 3:
+    # rebuild the same network as model.py and copy the stored weights in
+    import h5py
+    from keras.models import Sequential
+    from keras.layers import Input, Conv2D, MaxPooling2D, Dropout, Flatten, Dense
+    model = Sequential([Input((24,24,1)), Conv2D(32,(3,3),activation='relu'), MaxPooling2D((1,1)),
+                        Conv2D(32,(3,3),activation='relu'), MaxPooling2D((1,1)), Conv2D(64,(3,3),activation='relu'),
+                        MaxPooling2D((1,1)), Dropout(0.25), Flatten(), Dense(128,activation='relu'), Dropout(0.5),
+                        Dense(2,activation='softmax')])
+    w = h5py.File('models/cnnCat2.h5','r')['model_weights']
+    model.set_weights([w[n][n][k][()] for n in ['conv2d_1','conv2d_2','conv2d_3','dense_1','dense_2']
+                       for k in ('kernel:0','bias:0')])
 path = os.getcwd()
 cap = cv2.VideoCapture(0)
 font = cv2.FONT_HERSHEY_COMPLEX_SMALL
@@ -29,6 +44,9 @@ lpred=[99]
 
 while(True):
     ret, frame = cap.read()
+    if not ret:
+        print('Webcam stopped sending frames (is another app using it?)')
+        break
     height,width = frame.shape[:2] 
 
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -53,7 +71,7 @@ while(True):
         #rpred = model.predict_classes(r_eye)
         # rpred = model.predict(r_eye)
         # rpred = np.round(rpred).astype(int)
-        rpred = np.argmax(model.predict(r_eye), axis=-1)
+        rpred = np.argmax(model(r_eye, training=False), axis=-1)
         if(rpred[0]==1):
             lbl='Open' 
         if(rpred[0]==0):
@@ -71,7 +89,7 @@ while(True):
         #lpred = model.predict_classes(l_eye)
         # lpred = model.predict(l_eye)
         # lpred = np.round(lpred).astype(int)
-        lpred = np.argmax(model.predict(l_eye), axis=-1)
+        lpred = np.argmax(model(l_eye, training=False), axis=-1)
         print(lpred)
         if(lpred[0]==1):
             lbl='Open'   
