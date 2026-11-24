@@ -1,5 +1,6 @@
 """Flask server: serves the dashboard, the live MJPEG video and a small JSON API."""
 import argparse
+import logging
 import os
 import threading
 import time
@@ -111,6 +112,7 @@ def main():
     alarm = AlarmPlayer(cfg, os.path.join(ROOT, 'alarm.wav'))
     detector = Detector(cfg, alarm, TelegramNotifier(cfg), camera_index=args.camera)
     detector.start()
+    logging.getLogger('werkzeug').setLevel(logging.ERROR)  # hide the per-request lines (status is polled 4x/s)
     url = f'http://127.0.0.1:{args.port}'
     print(f'Alerta dashboard running at {url}  (Ctrl+C to stop)')
     if not args.no_browser:
