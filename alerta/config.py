@@ -7,6 +7,7 @@ from . import ROOT
 PATH = os.path.join(ROOT, 'config.json')
 
 DEFAULTS = {
+    'mirror': True,                # show the camera like a mirror (selfie view)
     'night_mode': 'auto',          # off | auto | on  (feature 9)
     'volume': 0.5,                 # master alarm volume 0..1 (feature 1)
     'muted': False,

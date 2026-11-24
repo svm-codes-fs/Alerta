@@ -68,12 +68,14 @@ refresh();
 function showSettings(c) {
   document.querySelectorAll('#night button').forEach(b => b.classList.toggle('on', b.dataset.v === c.night_mode));
   $('volume').value = c.volume; $('muted').checked = c.muted; $('distract').value = c.distraction_seconds;
+  $('mirror').checked = c.mirror;
 }
 fetch('/api/settings').then(r => r.json()).then(showSettings);
 document.querySelectorAll('#night button').forEach(b =>
   b.onclick = () => post('/api/settings', {night_mode: b.dataset.v}).then(showSettings));
 $('volume').oninput = () => post('/api/settings', {volume: +$('volume').value});
 $('muted').onchange = () => post('/api/settings', {muted: $('muted').checked});
+$('mirror').onchange = () => post('/api/settings', {mirror: $('mirror').checked});
 $('distract').onchange = () => post('/api/settings', {distraction_seconds: +$('distract').value}).then(showSettings);
 $('calibBtn').onclick = () => post('/api/calibrate');
 $('calibReset').onclick = () => post('/api/settings', {reset_calibration: true});

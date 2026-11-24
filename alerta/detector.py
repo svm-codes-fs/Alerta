@@ -123,15 +123,20 @@ class Detector:
         self.alarm.update(0)
 
     def process(self, frame, t):
+        if self.cfg['mirror']:
+            frame = cv2.flip(frame, 1)  # selfie view, like a mirror
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         brightness = float(gray.mean())
 
-        # feature 9: night mode - local contrast boost before detection, shown on screen too
+        # feature 9: night mode - local contrast boost on the lightness channel only,
+        # so the preview stays in colour and detection gets the brighter image
         mode = self.cfg['night_mode']
         night = mode == 'on' or (mode == 'auto' and brightness < NIGHT_BRIGHTNESS)
         if night:
-            gray = self.clahe.apply(gray)
-            frame = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
+            lab = cv2.cvtColor(frame, cv2.COLOR_BGR2LAB)
+            lab[..., 0] = self.clahe.apply(lab[..., 0])
+            frame = cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
         # face on a half-size image (faster), eyes only inside the upper part of the face
         small = cv2.resize(gray, None, fx=0.5, fy=0.5)

@@ -57,6 +57,7 @@ input[type=text], input[type=password], input[type=number] { background: #0f1319
 input[type=number] { flex: 0 0 70px; }
 input[type=range] { flex: 1; accent-color: var(--accent); }
 .check { display: inline-flex; gap: 6px; align-items: center; cursor: pointer; }
+.check.mirror { margin-left: 12px; color: var(--muted); }
 .btn { background: #222833; color: var(--text); border: 1px solid var(--line); border-radius: 8px;
   padding: 7px 14px; cursor: pointer; font: inherit; }
 .btn:hover { border-color: var(--accent); }

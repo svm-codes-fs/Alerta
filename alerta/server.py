@@ -51,13 +51,15 @@ def settings():
             cfg['volume'] = min(1.0, max(0.0, float(d['volume'])))
         if 'muted' in d:
             cfg['muted'] = bool(d['muted'])
+        if 'mirror' in d:
+            cfg['mirror'] = bool(d['mirror'])
         if 'distraction_seconds' in d:
             cfg['distraction_seconds'] = min(10.0, max(1.0, float(d['distraction_seconds'])))
         if d.get('reset_calibration'):
             cfg.update(closed_threshold=0.5, baseline_open=None)
             detector.calib_message = ''
         config.save(cfg)
-    return jsonify({k: cfg[k] for k in ('night_mode', 'volume', 'muted', 'distraction_seconds',
+    return jsonify({k: cfg[k] for k in ('mirror', 'night_mode', 'volume', 'muted', 'distraction_seconds',
                                         'closed_threshold', 'baseline_open')})
 
 
