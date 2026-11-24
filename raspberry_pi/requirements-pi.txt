@@ -1,0 +1,7 @@
+# Raspberry Pi (64-bit Raspberry Pi OS) — future work
+tflite-runtime
+opencv-python-headless<5
+numpy
+requests
+gpiozero
+# picamera2 is preinstalled on Raspberry Pi OS (sudo apt install python3-picamera2 otherwise)

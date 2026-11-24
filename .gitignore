@@ -3,3 +3,6 @@ __pycache__/
 data/
 image.jpg
 .deps/
+config.json
+logs/
+raspberry_pi/eye_model.tflite
